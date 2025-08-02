@@ -1,0 +1,94 @@
+{
+    "research_settings": {
+        "days_back": 7,
+        "top_papers": 10,
+        "download_papers": true,
+        "save_summaries": true,
+        "parallel_workers": 3,
+        "upload_to_google_drive": true,
+        "google_drive_folder_id": "1LN81hPsRYOovQhLrPhbkWpI9mEMLpgkk"
+    },
+    "search_terms": [
+        "autonomous driving",
+        "self-driving cars",
+        "autonomous vehicles",
+        "ADAS",
+        "driver assistance systems",
+        "perception autonomous driving",
+        "planning autonomous driving",
+        "control autonomous driving",
+        "end-to-end autonomous driving",
+        "neural networks autonomous driving",
+        "deep learning autonomous vehicles",
+        "computer vision autonomous driving",
+        "LiDAR autonomous driving",
+        "sensor fusion autonomous vehicles",
+        "BEV autonomous driving",
+        "occupancy networks autonomous driving",
+        "neural radiance fields autonomous driving",
+        "multi-modal perception autonomous vehicles"
+    ],
+    "exclusion_terms": [
+        "medical", 
+        "healthcare", 
+        "clinical", 
+        "patient", 
+        "disease", 
+        "treatment", 
+        "drug", 
+        "pharmaceutical", 
+        "biology", 
+        "genetics",
+        "health",
+        "underwater",
+        "submarine",
+        "aquatic",
+        "ocean",
+        "mixed reality",
+        "social mixed reality",
+        "augmented reality",
+        "virtual reality",
+        "metaverse"
+    ],
+    "required_terms": [
+        "autonomous",
+        "driving",
+        "vehicle",
+        "ADAS",
+        "self-driving",
+        "driverless",
+        "autonomous car",
+        "autonomous driving"
+    ],
+    "ranking_criteria": {
+        "quality_indicators": [
+            "state-of-the-art", "sota", "novel", "innovative", "breakthrough",
+            "comprehensive", "extensive evaluation", "real-world", "large-scale"
+        ],
+        "impact_indicators": [
+            "significant improvement", "substantial gain", "dramatic reduction",
+            "major advance", "groundbreaking", "transformative"
+        ],
+        "innovation_indicators": [
+            "new approach", "novel method", "first to", "pioneering",
+            "unprecedented", "unique", "original"
+        ],
+        "code_availability_bonus": 2.0,
+        "abstract_length_bonus": 0.5,
+        "recency_bonus_max": 2.0
+    },
+    "ai_models": {
+        "gemini": {
+            "name": "Google Gemini Pro",
+            "api_provider": "google-ai-studio",
+            "model_name": "gemini-2.5-flash",
+            "max_tokens": 2048
+        },
+        "kimi": {
+            "name": "Kimi AI",
+            "api_provider": "moonshot-ai",
+            "model_name": "kimi",
+            "max_tokens": 2048
+        }
+    }
+}
