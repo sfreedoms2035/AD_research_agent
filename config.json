@@ -2,6 +2,8 @@
     "research_settings": {
         "days_back": 7,
         "top_papers": 10,
+        "top_videos": 5,
+        "max_video_length_minutes": 20,
         "download_papers": true,
         "save_summaries": true,
         "parallel_workers": 3,

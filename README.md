@@ -1,17 +1,19 @@
-# Automated Driving Research Agent
+# Enhanced Automated Driving Research Agent
 
-An AI-powered agent that automatically researches new papers and models in automated driving from the last 7 days. It ranks papers based on quality, impact, innovation, code availability, and summarizes the top papers using advanced AI models.
+An AI-powered agent that automatically researches new papers and YouTube videos in automated driving from the last 7 days. It ranks papers and videos based on quality, impact, innovation, code availability, and summarizes the top results using advanced AI models.
 
 ## Features
 
-- **Automated Research**: Searches for recent papers in autonomous driving
-- **Intelligent Ranking**: Ranks papers based on multiple criteria:
+- **Automated Research**: Searches for recent papers and YouTube videos in autonomous driving
+- **Intelligent Ranking**: Ranks papers and videos based on multiple criteria:
   - Technical quality and innovation
   - Potential impact
   - Code availability
   - Recentness
-- **AI Summarization**: Generates technical summaries using Gemini Pro or Kimi AI
+  - Engagement metrics (for videos)
+- **AI Summarization**: Generates technical summaries using Gemini Pro or Kimi AI for both papers and videos
 - **Paper Download**: Automatically downloads PDFs to organized folders
+- **Video Download**: Optionally downloads YouTube videos (requires pytubefix)
 - **Google Drive Integration**: Automatically uploads results to Google Drive
 - **Configurable**: Easily customizable search terms and ranking criteria
 - **Scheduled Execution**: Can be set up to run automatically each week
@@ -59,13 +61,14 @@ The agent uses `config.json` for configuration:
 ### Basic Usage
 
 ```bash
-# Run with default settings (7 days, 10 papers, Gemini)
+# Run with default settings (7 days, 10 papers, 5 videos, Gemini)
 python enhanced_ad_research_agent.py --api-key YOUR_API_KEY
 
 # Run with custom parameters
 python enhanced_ad_research_agent.py \
   --days 14 \
-  --top 15 \
+  --top-papers 15 \
+  --top-videos 8 \
   --api-key YOUR_API_KEY \
   --model gemini
 ```
@@ -93,7 +96,8 @@ python enhanced_ad_research_agent.py --api-key "AIzaSyDz84i8o8dbXxBLZmoVTdhAu63G
 ### Command Line Arguments
 
 - `--days`: Number of days to look back (default: 7)
-- `--top`: Number of top papers to process (default: 10)
+- `--top-papers`: Number of top papers to process (default: 10)
+- `--top-videos`: Number of top videos to process (default: 5)
 - `--api-key`: API key for the AI model
 - `--model`: AI model to use (gemini or kimi)
 - `--config`: Path to configuration file (default: config.json)
@@ -103,8 +107,9 @@ python enhanced_ad_research_agent.py --api-key "AIzaSyDz84i8o8dbXxBLZmoVTdhAu63G
 The agent creates a date-stamped folder (e.g., `ad_research_2025-08-02`) containing:
 
 1. **Downloaded PDFs**: Top research papers
-2. **research_results.json**: Structured data of all papers
-3. **research_report.txt**: Human-readable report with summaries
+2. **Downloaded Videos**: Top YouTube videos (if enabled)
+3. **research_results.json**: Structured data of all papers and videos
+4. **research_report.txt**: Human-readable report with summaries for both papers and videos
 
 ## Google Drive Integration
 
@@ -186,6 +191,10 @@ ad_research_2025-08-02/
 ├── research_report.txt
 ├── End-to-end Autonomous Driving via.pdf
 ├── BEV Perception for Autonomous Vehicles.pdf
+├── Recent Advances in Autonomous Driving - MIT.pdf
+├── ...
+├── Understanding LiDAR in Self-Driving Cars.mp4
+├── Deep Learning for Autonomous Vehicles Tutorial.mp4
 ├── ...
 ```
 
