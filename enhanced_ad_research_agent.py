@@ -99,6 +99,27 @@ class EnhancedADRResearchAgent:
         self.research_settings = self.config["research_settings"]
         self.ranking_criteria = self.config["ranking_criteria"]
         self.ai_models = self.config["ai_models"]
+        
+        # Rate limiting configuration
+        self.rate_limit_config = {
+            "gemini": {
+                "requests_per_minute": 10,
+                "delay_between_requests": 6.0,  # 60/10 = 6 seconds
+                "batch_size": 5,  # Process in smaller batches
+                "retry_delay": 30  # Retry delay on rate limit
+            },
+            "kimi": {
+                "requests_per_minute": 30,
+                "delay_between_requests": 2.0,
+                "batch_size": 10,
+                "retry_delay": 10
+            }
+        }
+        
+        # Track last API call time for rate limiting
+        self.last_api_call_time = 0
+        self.api_call_count = 0
+        self.api_call_start_time = time.time()
     
     def search_recent_papers(self, days_back: int = None) -> List[ResearchPaper]:
         """
@@ -844,9 +865,71 @@ class EnhancedADRResearchAgent:
             print(f"Error summarizing video with Kimi: {e}")
             return f"Error in Kimi video summarization: {str(e)}"
     
+    def _rate_limit_api_call(self):
+        """Implement rate limiting for API calls based on model configuration."""
+        config = self.rate_limit_config.get(self.model, self.rate_limit_config["gemini"])
+        delay = config["delay_between_requests"]
+        
+        # Calculate time since last API call
+        current_time = time.time()
+        time_since_last = current_time - self.last_api_call_time
+        
+        # If we need to wait, sleep for the required duration
+        if time_since_last < delay:
+            sleep_time = delay - time_since_last
+            print(f"Rate limiting: sleeping for {sleep_time:.1f} seconds...")
+            time.sleep(sleep_time)
+        
+        # Update last API call time
+        self.last_api_call_time = time.time()
+    
+    def _batch_summarize_papers(self, papers: List[ResearchPaper]) -> List[str]:
+        """Summarize papers in batches to reduce API calls."""
+        if not papers:
+            return []
+        
+        summaries = []
+        batch_size = self.rate_limit_config.get(self.model, self.rate_limit_config["gemini"])["batch_size"]
+        
+        for i in range(0, len(papers), batch_size):
+            batch = papers[i:i+batch_size]
+            print(f"Processing batch {i//batch_size + 1}/{(len(papers)-1)//batch_size + 1} ({len(batch)} papers)...")
+            
+            for paper in batch:
+                self._rate_limit_api_call()
+                summary = self.summarize_paper(paper)
+                summaries.append(summary)
+                
+                # Add small delay between individual calls in batch
+                time.sleep(0.5)
+        
+        return summaries
+    
+    def _batch_summarize_videos(self, videos: List[ResearchVideo]) -> List[str]:
+        """Summarize videos in batches to reduce API calls."""
+        if not videos:
+            return []
+        
+        summaries = []
+        batch_size = self.rate_limit_config.get(self.model, self.rate_limit_config["gemini"])["batch_size"]
+        
+        for i in range(0, len(videos), batch_size):
+            batch = videos[i:i+batch_size]
+            print(f"Processing batch {i//batch_size + 1}/{(len(videos)-1)//batch_size + 1} ({len(batch)} videos)...")
+            
+            for video in batch:
+                self._rate_limit_api_call()
+                summary = self.summarize_video(video)
+                summaries.append(summary)
+                
+                # Add small delay between individual calls in batch
+                time.sleep(0.5)
+        
+        return summaries
+    
     def summarize_paper(self, paper: ResearchPaper) -> str:
         """
-        Summarize a paper using the configured AI model.
+        Summarize a paper using the configured AI model with rate limiting.
         
         Args:
             paper: ResearchPaper object
@@ -854,18 +937,33 @@ class EnhancedADRResearchAgent:
         Returns:
             Summary string
         """
+        # Rate limit before individual API call
+        self._rate_limit_api_call()
+        
         if self.model == "gemini":
             return self.summarize_paper_with_gemini(paper)
         elif self.model == "kimi":
             return self.summarize_paper_with_kimi(paper)
         else:
-            # Fallback to basic summary
-            summary = f"Technical summary of '{paper.title[:50]}...':\n\n"
-            summary += f"This paper presents research in autonomous driving with significant contributions to the field. "
-            summary += f"The methodology involves advanced techniques that show promising results. "
-            summary += f"The work has potential for real-world applications in self-driving systems.\n\n"
-            summary += f"Key findings: Improved performance, novel approach, practical implementation."
-            return summary
+            return self._basic_paper_summary(paper)
+    
+    def _basic_paper_summary(self, paper: ResearchPaper) -> str:
+        """Generate basic summary when AI models are not available."""
+        summary = f"Technical summary of '{paper.title[:50]}...':\n\n"
+        summary += f"This paper presents research in autonomous driving with significant contributions to the field. "
+        summary += f"The methodology involves advanced techniques that show promising results. "
+        summary += f"The work has potential for real-world applications in self-driving systems.\n\n"
+        summary += f"Key findings: Improved performance, novel approach, practical implementation."
+        return summary
+    
+    def _basic_video_summary(self, video: ResearchVideo) -> str:
+        """Generate basic summary when AI models are not available."""
+        summary = f"Technical summary of '{video.title[:50]}...':\n\n"
+        summary += f"This video presents research in autonomous driving with significant contributions to the field. "
+        summary += f"The content involves advanced techniques that show promising results. "
+        summary += f"The work has potential for real-world applications in self-driving systems.\n\n"
+        summary += f"Key findings: Improved performance, novel approach, practical implementation."
+        return summary
     
     def summarize_video(self, video: ResearchVideo) -> str:
         """
